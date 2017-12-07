@@ -1,8 +1,6 @@
-
 package dora;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -10,8 +8,6 @@ import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand.ListMode;
-import org.eclipse.jgit.api.ListTagCommand;
-import org.eclipse.jgit.api.LogCommand;
 import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -39,10 +35,11 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 
+import ca.ubc.dora.repackage.branchPrep;
+import ca.ubc.dora.repackage.repoPrep;
 
+public class traverseBranch {
 
-public class Script {
-    
     private static Git git;
     private static FileOutputStream outputStream;
     // private static FileOutputStream outputStreamAllCommits;
@@ -1024,5 +1021,5 @@ public class Script {
             return true;
         return false;
     }
-    
+
 }

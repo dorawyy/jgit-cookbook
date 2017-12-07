@@ -1,22 +1,27 @@
 package dora;
 
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ListBranchCommand.ListMode;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class repoPrep {
 
+
+/***
+ * @Description: repackage the repository, with all types of stats
+ * 
+ */
+
+
+public class editedRepo {
 
     // Repo info
     public String repoName;
@@ -29,7 +34,6 @@ public class repoPrep {
     public File outputFile; 
     public String outputDir;
     
-    // public FileOutputStream outputStream = setUpOutputFile(outputDir, outputFile);
     
     
     // repo level stats
@@ -39,114 +43,143 @@ public class repoPrep {
     public int textConflictCount; // number of textual conflicts merge commits of the whole repo
     public int potenSemanConfCount; // number of potential merge conflicts merge commits of the whole repo
 
+    
+    
     // all commits of the repo
-    public Set<RevCommit> repoCommits = new HashSet<>();
-    
+    public List<editedCommit> editedCommitsSet ;
   
     
-  
+    
     /***
-     * main function
-     * @param args
+     * Return true if the editedCommit is already added to the Repo Commit List
+     * @param editedCommit
+     * @return
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    public boolean containEditedCommit(editedCommit commit)
+    {    
+        for(editedCommit editedcommit: this.editedCommitsSet)
+        {
+            if(editedcommit.getRevCommit().getId() == commit.getRevCommit().getId())
+                return true;
+            }
+        return false;
     }
     
- 
+    
     
     
     /***
-     * get all remote-tracking branches, aka. execute `git branch -r`
-     * @param outputStream
-     * @param gitObject
+     * Return true if the editedCommit is already added to the Repo Commit List
+     * @param RevCommit
+     * @return
+     */
+    public boolean containRevCommit(RevCommit revcommit){
+        if(this.editedCommitsSet != null){
+            for(editedCommit editedcommit: this.editedCommitsSet)
+            {
+                if(editedcommit.getRevCommit().equals(revcommit))
+                    return true;
+                }
+            }
+        return false;
+    }
+    
+  
+    /***
+     * Return the editedCommit if it is contained in the repository already
+     * @param commit
+     * @return
+     */
+    public editedCommit findEditedCommitByEditedCommit(editedCommit commit)
+    {    
+        for(editedCommit editedcommit: this.editedCommitsSet)
+        {
+            if(editedcommit.getRevCommit().equals(commit.getRevCommit()))
+                return editedcommit;
+            }
+        return null;
+    }
+     
+    
+    /***
+     * Return the editedCommit if it is contained in the repository already
+     * @param commit
+     * @return
+     */
+    public editedCommit findEditedCommitByRevCommit(RevCommit commit)
+    {    
+        for(editedCommit editedcommit: this.editedCommitsSet)
+        {
+            //if(editedcommit.getRevCommit().getId() == commit.getId())
+            if(editedcommit.getRevCommit().equals(commit))
+                return editedcommit;
+            }
+        return null;
+    }
+     
+    
+    
+    
+    /***
+     * Add new editedCommit to List<commitPrep> editedCommitsSet
+     */
+    public void addEditedCommitToEditedCommitsSet(editedCommit commit)
+    {
+        if( this.containEditedCommit(commit) == false) {
+            this.editedCommitsSet.add(commit);
+            
+            // update stats based on the type of this merge
+            this.increCommitCount();
+            if(commit.isMergeCommit()){
+                this.increMergeCount();
+                if(commit.is2ParentsMergeCommit()){
+                    this.increTwoPrtsMergeCount();
+                }
+            }
+        }
+        
+    }
+    
+    
+    
+    /***
+     * Output all commits info of the editedRepo to a file
+     * @param repositroyPrep
      * @return
      * @throws GitAPIException
      * @throws IOException
      */
-    public static List<Ref> getRemoteBranches(FileOutputStream outputStream) throws GitAPIException, IOException{
-        // get all remote tracking branches
+    public void printRepoStats(String fileDir) throws IOException{
+        String outFileName = fileDir + this.repoName + "_AllCommits.txt";
+        File outfile = new File(outFileName);
+        FileOutputStream outputStream = new FileOutputStream(outfile);
         
-        String str = "Listing all remote branches:\n";
-        System.out.println(str);
-        // output to file
-        outputStream.write(str.getBytes());
+        StringBuilder repoStats = new StringBuilder();
+        repoStats.append("RepoName is:" + repoName +"\n \n");
         
-        List<Ref> remoteBranches = git.branchList().setListMode(ListMode.REMOTE).call();
-        return remoteBranches;
-    }
-    
-    
-    
-    
-    /***
-     * get all (local + remote-trancking) branches, aka. execute `git branch -a`
-     * @param outputStream
-     * @param gitObject
-     * @return
-     * @throws GitAPIException
-     * @throws IOException
-     */
-    public static List<Ref> getAllBranches(FileOutputStream outputStream) throws GitAPIException, IOException{
-        // get all remote tracking branches
+        for(editedCommit editedcommit: this.editedCommitsSet){
+            repoStats.append(editedcommit.printEditedCommit());
+            }
+        repoStats.append("\n");
         
-        String str = "Listing all branches:\n";
-        System.out.println(str);
-        // output to file
-        outputStream.write(str.getBytes());
-        
-        List<Ref> allBranches = git.branchList().setListMode(ListMode.ALL).call();
-        return allBranches;
-    }
-    
-  
-    
-    
-    /***
-     * return all local branches
-     * @param outputStream
-     * @param gitObject
-     * @return
-     * @throws GitAPIException
-     * @throws IOException 
-     */
-    public static List<Ref> getLocalBranches(FileOutputStream outputStream) throws GitAPIException, IOException{
-        // get all remote tracking branches
-        
-        String str = "Listing all local branches:\n";
-        System.out.println(str);
-        // output to file
-        outputStream.write(str.getBytes());
+        repoStats.append("    1. repo total number of commits: "+ commitCount + "\n");
+        repoStats.append("    2. repo total number of merge commits (parents >= 2): "+ mergeCount + "\n");
+        repoStats.append("    3. repo total number of merge commits (parents = 2): "+ twoPrtsMergeCount + "\n");
+        repoStats.append("    4. repo total number of textual conflicts: "+ textConflictCount + "\n");
+        repoStats.append("    5. repo total number of potential semantic conflicts: "+ potenSemanConfCount + "\n");
 
-        List<Ref> localBranches =  git.branchList().call();
-        return localBranches;
-    }
-    
-    
-    
-    
-    /***
-     * return all tags
-     * @param outputStream
-     * @param gitObject
-     * @return
-     * @throws GitAPIException
-     * @throws IOException 
-     */
-    public static List<Ref> getAllTags(FileOutputStream outputStream,  Git gitObject) throws GitAPIException, IOException{
-        // get all remote tracking branches
+        String analysisFinishStr = "Repo "+repoName+" all commits scan finish!\n"; 
+        repoStats.append(analysisFinishStr);
         
-        String str = "Listing all tags:\n";
-        System.out.println(str);
-        // output to file
-        outputStream.write(str.getBytes());
+        System.out.println(analysisFinishStr);
+        repoStats.append("\n");
+        
+        outputStream.write(repoStats.toString().getBytes());
+        outputStream.close();
 
-        List<Ref> allTags = gitObject.tagList().call();
-        return allTags;
     }
     
-
+    
     
     
     
@@ -157,13 +190,13 @@ public class repoPrep {
      * Customized constructor
      * @throws IOException 
      */
-    repoPrep(String localDir, String outputDir, String repoName) throws IOException{
+    public editedRepo(String localDir, String outputDir, String repoName) throws IOException{
         
         this.repoName = repoName;
         this.localDir = localDir;
        
         this.gitFile = new File( this.localDir +"/.git");
-        repoPrep.git = Git.open(this.gitFile);
+        editedRepo.git = Git.open(this.gitFile);
         
         //initialization of repo-level statistics
         this.commitCount = 0;
@@ -175,6 +208,9 @@ public class repoPrep {
         // output directory and files set up
         this.outputDir = outputDir;
         this.outputFile = new File(this.outputDir + this.repoName);
+        
+        
+        this.editedCommitsSet = new ArrayList<>();
     }
     
     
@@ -232,7 +268,7 @@ public class repoPrep {
 
     
     public void setGit(Git git) {
-        repoPrep.git = git;
+        editedRepo.git = git;
     }
 
 
@@ -368,39 +404,22 @@ public class repoPrep {
     }
 
 
+
+
     
-    public Set<RevCommit> getRepoCommits() {
-        return repoCommits;
+    public List<editedCommit> getEditedCommitsSet() {
+        return editedCommitsSet;
+    }
+
+
+
+
+    
+    public void setEditedCommitsSet(List<editedCommit> editedCommitsSet) {
+        this.editedCommitsSet = editedCommitsSet;
     }
 
 
 
     
-    public void setRepoCommits(Set<RevCommit> repoCommits) {
-        this.repoCommits = repoCommits;
-    }
-    
-    
-    
-    /***
-     * add the commit in parameter to the repoCommits list
-     * @param commit
-     */
-    public void addRepoCommits(RevCommit commit)
-    {
-        this.repoCommits.add(commit);
-    }
-    
-    
-    /***
-     * add the commit in parameter to the repoCommits list
-     * @param commit
-     */
-    public boolean isContainedInRepoCommits(RevCommit commit)
-    {
-        if(this.repoCommits.contains(commit))
-            return true;
-        return false;
-    }
-
 }
