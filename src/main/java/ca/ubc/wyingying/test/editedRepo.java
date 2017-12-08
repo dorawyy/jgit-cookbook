@@ -1,4 +1,4 @@
-package dora;
+package ca.ubc.wyingying.test;
 
 
 import java.io.File;
@@ -142,6 +142,8 @@ public class editedRepo {
     
     
     
+
+    
     /***
      * Output all commits info of the editedRepo to a file
      * @param repositroyPrep
@@ -149,7 +151,7 @@ public class editedRepo {
      * @throws GitAPIException
      * @throws IOException
      */
-    public void printRepoStats(String fileDir) throws IOException{
+    public void printRepoAllCommits(String fileDir) throws IOException{
         String outFileName = fileDir + this.repoName + "_AllCommits.txt";
         File outfile = new File(outFileName);
         FileOutputStream outputStream = new FileOutputStream(outfile);
@@ -161,6 +163,28 @@ public class editedRepo {
             repoStats.append(editedcommit.printEditedCommit());
             }
         repoStats.append("\n");
+        
+        outputStream.write(repoStats.toString().getBytes());
+        outputStream.close();
+
+    }
+    
+    
+    
+    /***
+     * Output all commits info of the editedRepo to a file
+     * @param repositroyPrep
+     * @return
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    public void printRepoStats(String fileDir) throws IOException{
+        String outFileName = fileDir + this.repoName + "_RepoStats.txt";
+        File outfile = new File(outFileName);
+        FileOutputStream outputStream = new FileOutputStream(outfile);
+        
+        StringBuilder repoStats = new StringBuilder();
+        repoStats.append("RepoName is:" + repoName +"\n \n");
         
         repoStats.append("    1. repo total number of commits: "+ commitCount + "\n");
         repoStats.append("    2. repo total number of merge commits (parents >= 2): "+ mergeCount + "\n");

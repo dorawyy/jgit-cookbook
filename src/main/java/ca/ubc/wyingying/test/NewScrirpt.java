@@ -1,4 +1,4 @@
-package dora;
+package ca.ubc.wyingying.test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,71 +47,75 @@ public class NewScrirpt {
         // TODO Auto-generated method stub
 
 
-        long startTime = System.currentTimeMillis();
-        System.out.println("start time is: " + startTime);
-
-        String localDir = "/Users/dora/1205_conflict_test_repo";
-        String outputDir = "/Users/dora/SamSungRepos/Output/";
-
-        int repoNameIndex = localDir.lastIndexOf("/");
-        String repoName = localDir.substring(repoNameIndex + 1).replace('/', '_');
-
-        System.out.println("repoName is: " + repoName);
-
-        editedRepo editedrepo = new editedRepo(localDir, outputDir, repoName);
-
-        System.out.println("created the editedRepo ");
-
-        git = editedrepo.getGit();
-
-
-        System.out.println("editedrepo.getGit()");
-
-
-        // step1: get all commits in the repo
-        editedrepo = getAllCommitsForRepo(editedrepo);
-        System.out.println("getAllCommitsForRepo(editedrepo) done");
-
-        long phrase1EndTime = System.currentTimeMillis();
-        System.out.println("Step1, Scanning all commits is done, current system time is: " + phrase1EndTime);
+        for (String arg : args) {
+            String localDir = arg;
+            long startTime = System.currentTimeMillis();
+            System.out.println("start time is: " + startTime);
 
 
 
-        // step2: get merge commits, replay merge, get diff
-        long phase2StartTime = System.currentTimeMillis();
-        System.out.println("Phrase2 start time is: " + phase2StartTime);
+            int repoNameIndex = localDir.lastIndexOf("/");
+            String repoName = localDir.substring(repoNameIndex + 1).replace('/', '_');
 
-   
-        editedrepo = getMergeReplayDiff(editedrepo);
-        
-        System.out.println("phase2 done\n");
-        
-        long phrase2EndTime = System.currentTimeMillis();
-        System.out.println("Step2, Replay merging is done, current system time is: " + phrase2EndTime);
+            String outputDir = "/Users/dora/SamSungRepos/Output/" + repoName + "/";
 
-     
-        
-        // step3
-        long phase3StartTime = System.currentTimeMillis();
-        System.out.println("Phrase3 start time is: " + phase3StartTime);
-        
-        printStatsByBranches(editedrepo);
-        
-        System.out.println("phase3 done\n");
-        
-        long phrase3EndTime = System.currentTimeMillis();
-        System.out.println("Step3, Reporting stats is done, current system time is: " + phrase3EndTime);
+            System.out.println("repoName is: " + repoName);
 
-        
-        
-        
-        // last step: print repo stats
-        editedrepo.printRepoStats(outputDir);
-        
-        System.out.println("Whole repo analysis (3 steps) all done.");
-        
+            editedRepo editedrepo = new editedRepo(localDir, outputDir, repoName);
+
+            System.out.println("created the editedRepo ");
+
+            git = editedrepo.getGit();
+
+
+            System.out.println("editedrepo.getGit()");
+
+
+            // step1: get all commits in the repo
+            editedrepo = getAllCommitsForRepo(editedrepo);
+            System.out.println("getAllCommitsForRepo(editedrepo) done");
+
+            long phrase1EndTime = System.currentTimeMillis();
+            System.out.println("Step1, Scanning all commits is done, current system time is: " + phrase1EndTime);
+
+
+            editedrepo.printRepoStats(outputDir);
+            
+            // step2: get merge commits, replay merge, get diff
+            long phase2StartTime = System.currentTimeMillis();
+            System.out.println("Phrase2 start time is: " + phase2StartTime);
+
+
+            editedrepo = getMergeReplayDiff(editedrepo);
+
+            System.out.println("phase2 done\n");
+
+            long phrase2EndTime = System.currentTimeMillis();
+            System.out.println("Step2, Replay merging is done, current system time is: " + phrase2EndTime);
+
+            editedrepo.printRepoStats(outputDir);
+
+            // step3
+            long phase3StartTime = System.currentTimeMillis();
+            System.out.println("Phrase3 start time is: " + phase3StartTime);
+
+            printStatsByBranches(editedrepo);
+
+            System.out.println("phase3 done\n");
+
+            long phrase3EndTime = System.currentTimeMillis();
+            System.out.println("Step3, Reporting stats is done, current system time is: " + phrase3EndTime);
+
+
+
+            // last step: print repo stats
+            editedrepo.printRepoStats(outputDir);
+
+            editedrepo.printRepoAllCommits(outputDir);
+            System.out.println("Whole repo analysis (3 steps) all done.");
+
+        }
     }
-
 
 
     /***
@@ -155,9 +159,9 @@ public class NewScrirpt {
 
 
 
-    
     /***
      * Step2: Replay merge and output textual confs/ potential semantic confs
+     * 
      * @param editedrepo
      * @return
      * @throws CheckoutConflictException
@@ -166,31 +170,35 @@ public class NewScrirpt {
      */
     public static editedRepo getMergeReplayDiff(editedRepo editedrepo)
             throws CheckoutConflictException, IOException, GitAPIException {
-        
-        StringBuilder textualConfStr  = new StringBuilder();
-        textualConfStr.append("======================================================================================================================================================\n");
+
+        StringBuilder textualConfStr = new StringBuilder();
+        textualConfStr.append(
+                "======================================================================================================================================================\n");
         textualConfStr.append("Here are all textual conlfict merge:\n");
-        textualConfStr.append("======================================================================================================================================================\n");
+        textualConfStr.append(
+                "======================================================================================================================================================\n");
         textualConfStr.append("\n\n");
-        
-        
-        StringBuilder semanConfStr  = new StringBuilder();
-        semanConfStr.append("======================================================================================================================================================\n");
+
+
+        StringBuilder semanConfStr = new StringBuilder();
+        semanConfStr.append(
+                "======================================================================================================================================================\n");
         semanConfStr.append("Here are all potential semantic conlfict merge:\n");
-        semanConfStr.append("======================================================================================================================================================\n");
+        semanConfStr.append(
+                "======================================================================================================================================================\n");
         semanConfStr.append("\n\n\n");
-        
-        
-        File textualOutput = new File(editedrepo.getOutputDir() + editedrepo.getRepoName() +"_TextualConf.txt");
+
+
+        File textualOutput = new File(editedrepo.getOutputDir() + editedrepo.getRepoName() + "_TextualConf.txt");
         @SuppressWarnings("resource")
         FileOutputStream textualFOS = new FileOutputStream(textualOutput);
-        
-        File semanOutput = new File(editedrepo.getOutputDir() + editedrepo.getRepoName() +"_PotenSemanConf.txt");
+
+        File semanOutput = new File(editedrepo.getOutputDir() + editedrepo.getRepoName() + "_PotenSemanConf.txt");
         @SuppressWarnings("resource")
         FileOutputStream semanticFOS = new FileOutputStream(semanOutput);
-        
-        
-        
+
+
+
         // traverse editedCommit
         for (editedCommit editedcommit : editedrepo.getEditedCommitsSet()) {
             // get the real merge commit
@@ -214,7 +222,7 @@ public class NewScrirpt {
                     // update status of the real editedCommit , repo textual conflict ++
                     editedrepo.findEditedCommitByEditedCommit(editedcommit).setHasTextualConflict(meetTextualConflict());
                     editedrepo.increTextConflictCount();
-                    
+
                     // print merge commit info
                     textualConfStr.append("Merge Commit:");
                     textualConfStr.append(editedcommit.printEditedCommit());
@@ -223,10 +231,11 @@ public class NewScrirpt {
                     textualConfStr.append("Parent 1:");
                     textualConfStr.append(editedrepo.findEditedCommitByRevCommit(parent1).printEditedCommit());
                     textualConfStr.append("\n");
-                    textualConfStr.append("======================================================================================================================================================\n");  
+                    textualConfStr.append(
+                            "======================================================================================================================================================\n");
                     textualConfStr.append("\n");
-                    
-                           
+
+
                 }
 
                 // if no texutal conflict, compare git diff
@@ -241,8 +250,8 @@ public class NewScrirpt {
                         editedrepo.increPotenSemanConfCount();
 
                         // print diffEntries, commit info
-                        
-                        
+
+
                         // print merge commit info
                         semanConfStr.append("Merge Commit:");
                         semanConfStr.append(editedcommit.printEditedCommit());
@@ -253,10 +262,11 @@ public class NewScrirpt {
                         // find the editedCommit of its parents
                         semanConfStr.append(printDiff(diffEntries));
                         semanConfStr.append("\n");
-                        semanConfStr.append("======================================================================================================================================================\n");  
+                        semanConfStr.append(
+                                "======================================================================================================================================================\n");
                         semanConfStr.append("\n");
-                        
-                        
+
+
                     }
                 }
 
@@ -267,80 +277,77 @@ public class NewScrirpt {
 
         }
 
-        
-        
+
+
         textualFOS.write(textualConfStr.toString().getBytes());
         semanticFOS.write(semanConfStr.toString().getBytes());
-        
+
         textualFOS.close();
         semanticFOS.close();
-        
-        
+
+
         return editedrepo;
     }
 
-    
-    
-    
+
+
     /***
      * Step3: Print stats of each branch
+     * 
      * @param editedrepo
-     * @throws GitAPIException 
-     * @throws IOException 
+     * @throws GitAPIException
+     * @throws IOException
      */
-    public static void printStatsByBranches(editedRepo editedrepo) throws GitAPIException, IOException
-    {
+    public static void printStatsByBranches(editedRepo editedrepo) throws GitAPIException, IOException {
         List<Ref> allRemoteBranches = git.branchList().setListMode(ListMode.REMOTE).call();
-        for(Ref branch : allRemoteBranches)
-        {
+        for (Ref branch : allRemoteBranches) {
             printDetailsPerBranch(editedrepo, branch);
         }
     }
 
-  
-    
+
+
     /***
      * Print details about (1) all commits on this branch, (2) branch stats
+     * 
      * @param editedrepo
      * @param branch
      * @throws IOException
      */
-    public static void printDetailsPerBranch(editedRepo editedrepo, Ref branch) throws IOException{
-        
+    public static void printDetailsPerBranch(editedRepo editedrepo, Ref branch) throws IOException {
+
         editedBranch editedbranch = new editedBranch(branch);
-        
-        for(editedCommit editedcommit : editedrepo.getEditedCommitsSet())
-        {
+
+        for (editedCommit editedcommit : editedrepo.getEditedCommitsSet()) {
             // if the editedCommit is supposed to be on the branch, but not added yet, then add it
-            if(editedcommit.getContainedBranches().contains(branch) == true && editedbranch.containEditedCommit(editedcommit) == false)
+            if (editedcommit.getContainedBranches().contains(branch) == true &&
+                    editedbranch.containEditedCommit(editedcommit) == false)
                 editedbranch.addCommitByEditedCommit(editedcommit);
-          
+
         }
-        
-        
-        
+
+
+
         StringBuilder branchStr = new StringBuilder();
         branchStr.append(editedbranch.printEditedBranchInfo());
-        
+
         branchStr.append(editedbranch.printBranchStats());
-        
-        
+
+
         int branchNameIndex = branch.getName().lastIndexOf("/");
         String branchName = branch.getName().substring(branchNameIndex + 1).replace('/', '_');
 
-        File outputBranch = new File(editedrepo.getOutputDir()+ branchName+ "_BranchOutput");
+        File outputBranch = new File(editedrepo.getOutputDir() + branchName + "_BranchOutput");
         FileOutputStream branchFOS = new FileOutputStream(outputBranch);
-        
+
         branchFOS.write(branchStr.toString().getBytes());
-        
+
         branchFOS.close();
-        
-        
+
+
     }
-    
-    
-    
-    
+
+
 
     /***
      * Print git diff results
@@ -366,14 +373,12 @@ public class NewScrirpt {
             diffStr.append("    (7) Old ID: " + diffEntry.getOldId().toString() + "\n");
             index++;
         }
-        
+
         return diffStr;
     }
 
 
-    
-    
- 
+
     /***
      * Command: git reset --hard commit
      * There is no direct git merge --abort, thus using git reset --hard
@@ -506,8 +511,6 @@ public class NewScrirpt {
     }
 
 
-    
-    
 
     /***
      * Print commit information

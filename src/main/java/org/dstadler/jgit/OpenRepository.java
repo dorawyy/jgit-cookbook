@@ -35,7 +35,9 @@ public class OpenRepository {
 
     public static void main(String[] args) throws IOException, GitAPIException {
         // first create a test-repository, the return is including the .get directory here!
-        File repoDir = createSampleGitRepo();
+        
+        // Dora specified repo dir
+        File repoDir =  new File("/Users/dora/git-merge-conflicts-test-2"); //createSampleGitRepo();
 
         // now open the resulting repository with a FileRepositoryBuilder
         FileRepositoryBuilder builder = new FileRepositoryBuilder();

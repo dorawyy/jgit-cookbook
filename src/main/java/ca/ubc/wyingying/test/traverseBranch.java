@@ -1,4 +1,4 @@
-package dora;
+package ca.ubc.wyingying.test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,8 +35,8 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 
-import ca.ubc.dora.repackage.branchPrep;
-import ca.ubc.dora.repackage.repoPrep;
+import ca.ubc.wyingying.traversebranches.branchPrep;
+import ca.ubc.wyingying.traversebranches.repoPrep;
 
 public class traverseBranch {
 
