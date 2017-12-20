@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -152,8 +153,8 @@ public class editedRepo {
      * @throws IOException
      */
     public void printRepoAllCommits(String fileDir) throws IOException{
-        String outFileName = fileDir + this.repoName + "_AllCommits.txt";
-        File outfile = new File(outFileName);
+        String outFileName = this.repoName + "_AllCommits.txt";
+        File outfile = Paths.get(fileDir ,File.separator, outFileName).toFile();
         FileOutputStream outputStream = new FileOutputStream(outfile);
         
         StringBuilder repoStats = new StringBuilder();
@@ -165,6 +166,7 @@ public class editedRepo {
         repoStats.append("\n");
         
         outputStream.write(repoStats.toString().getBytes());
+        outputStream.flush();
         outputStream.close();
 
     }
@@ -179,8 +181,8 @@ public class editedRepo {
      * @throws IOException
      */
     public void printRepoStats(String fileDir) throws IOException{
-        String outFileName = fileDir + this.repoName + "_RepoStats.txt";
-        File outfile = new File(outFileName);
+        String fileName = this.repoName + "_RepoStats.txt";
+        File outfile = Paths.get(fileDir, File.separator, fileName).toFile();
         FileOutputStream outputStream = new FileOutputStream(outfile);
         
         StringBuilder repoStats = new StringBuilder();
@@ -199,6 +201,7 @@ public class editedRepo {
         repoStats.append("\n");
         
         outputStream.write(repoStats.toString().getBytes());
+        outputStream.flush();
         outputStream.close();
 
     }
@@ -219,7 +222,7 @@ public class editedRepo {
         this.repoName = repoName;
         this.localDir = localDir;
        
-        this.gitFile = new File( this.localDir +"/.git");
+        this.gitFile = new File( this.localDir + File.separator + ".git");
         editedRepo.git = Git.open(this.gitFile);
         
         //initialization of repo-level statistics
@@ -231,6 +234,13 @@ public class editedRepo {
         
         // output directory and files set up
         this.outputDir = outputDir;
+        
+        // todo : if the dir does not exist, create the dir
+        
+        File outputPath = new File(outputDir);
+        if(!outputPath.exists()){
+            
+        }
         this.outputFile = new File(this.outputDir + this.repoName);
         
         

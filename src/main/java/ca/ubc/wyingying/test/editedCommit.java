@@ -93,7 +93,10 @@ public class editedCommit {
             commitInfoStr.append("          Branch"+i + ":"+ branch.getName().toString() +"\n");
             i++;
         }
-        commitInfoStr.append("    (3) Commit Message: " + this.getRevCommit().getFullMessage().toString() + "\n");
+        commitInfoStr.append("    (3) Commit Message: \n");
+        commitInfoStr.append("    ------------------------------------------------------------------------------------\n");
+        commitInfoStr.append( "      "+ this.getRevCommit().getFullMessage().toString() + "\n");
+        commitInfoStr.append("    ------------------------------------------------------------------------------------\n");
         commitInfoStr.append("    (4) Committer: " + this.getRevCommit().getCommitterIdent().toString()+ "\n");
         commitInfoStr.append("    (5) Commit Time: " + this.getRevCommit().getCommitTime()+ "\n");
         commitInfoStr.append("\n");
@@ -281,6 +284,20 @@ public class editedCommit {
     
     public void setHasPotentialSemanticConf(boolean hasPotentialSemanticConf) {
         this.hasPotentialSemanticConf = hasPotentialSemanticConf;
+    }
+
+
+
+    
+    public String getCommitId() {
+        return commitId;
+    }
+
+
+
+    
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
     }
     
     
