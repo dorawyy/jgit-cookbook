@@ -1,13 +1,3 @@
 language: java
-jdk:
-  - oraclejdk8
- 
-before_install:
- - chmod +x gradlew
- - git config --unset-all remote.origin.fetch
- - git config --add remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
- - git fetch --unshallow
- - git fetch origin testbranch:testbranch
+# basically, this is the minimal requirements for .travis.yml
 
-after_failure:
-- cat build/test-results/test/*.xml
